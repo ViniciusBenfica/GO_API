@@ -1,30 +1,27 @@
 package main
 
 import (
-	"database/sql"
-	"encoding/json"
-	"log"
 	"net/http"
-
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/labstack/echo/v4"
 )
 
 var courses []Course
 
 type Course struct {
-	ID   string
-	Name string
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 func generateCourses() {
 	course1 := Course{
 		ID:   "1",
-		Name: "Full Cycle",
+		Name: "Vinicius",
 	}
 
 	course2 := Course{
 		ID:   "2",
-		Name: "Bonus Full Cycle",
+		Name: "Benfica",
 	}
 
 	courses = append(courses, course1, course2)
@@ -32,31 +29,19 @@ func generateCourses() {
 
 func main() {
 	generateCourses()
-	http.HandleFunc("/courses", listCourses)
-	http.ListenAndServe(":8081", nil)
+	e := echo.New()
+	e.GET("/course", listCourses)
+	e.POST("/course", createCourse)
+	e.Logger.Fatal(e.Start(":8081"))
 }
 
-func listCourses(w http.ResponseWriter, r *http.Request) {
-	jsonCourses, _ := json.Marshal(courses)
-	// persistCourse()
-	w.Write([]byte(jsonCourses))
+func listCourses(c echo.Context) error {
+	return c.JSON(http.StatusOK, courses)
 }
 
-func persistCourse() error {
-	db, err := sql.Open("mysql", "root:root@/test")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	stmt, err := db.Prepare("insert into courses values($1, $2)")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = stmt.Exec("abc", "Benf")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return nil
+func createCourse(c echo.Context) error {
+	course := Course{}
+	c.Bind(&course)
+	courses = append(courses, course)
+	return c.JSON(http.StatusOK, courses)
 }
