@@ -2,46 +2,82 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 )
 
-var courses []Course
+var cruds []Crud
 
-type Course struct {
-	ID   string `json:"id"`
+type Crud struct {
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
-func generateCourses() {
-	course1 := Course{
-		ID:   "1",
-		Name: "Vinicius",
-	}
-
-	course2 := Course{
-		ID:   "2",
-		Name: "Benfica",
-	}
-
-	courses = append(courses, course1, course2)
-}
-
 func main() {
-	generateCourses()
 	e := echo.New()
-	e.GET("/course", listCourses)
-	e.POST("/course", createCourse)
+	e.GET("/crud", listUser)
+	e.POST("/crud", createUser)
+	e.GET("/crud/:id", getUser)
+	e.PUT("/crud/:id", putUser)
+	e.DELETE("/crud/:id", deleteUser)
 	e.Logger.Fatal(e.Start(":8081"))
 }
 
-func listCourses(c echo.Context) error {
-	return c.JSON(http.StatusOK, courses)
+func listUser(c echo.Context) error {
+	return c.JSON(http.StatusOK, cruds)
 }
 
-func createCourse(c echo.Context) error {
-	course := Course{}
-	c.Bind(&course)
-	courses = append(courses, course)
-	return c.JSON(http.StatusOK, courses)
+func createUser(c echo.Context) error {
+	crud := Crud{}
+	err := c.Bind(&crud)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity)
+	}
+	cruds = append(cruds, crud)
+	return c.JSON(http.StatusOK, cruds)
+}
+
+func getUser(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	for _, crud := range cruds {
+		if crud.ID == id {
+			return c.JSON(http.StatusOK, crud)
+		}
+	}
+	return c.JSON(http.StatusBadRequest, nil)
+}
+
+func putUser(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	crud := Crud{}
+	err := c.Bind(&crud)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity)
+	}
+
+	for i, _ := range cruds {
+		if cruds[i].ID == id {
+			cruds[i].Name = crud.Name
+			return c.JSON(http.StatusOK, cruds)
+		}
+	}
+	return c.JSON(http.StatusBadRequest, nil)
+}
+
+func deleteUser(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	for i, _ := range cruds {
+		if cruds[i].ID == id {
+			cruds = remove(cruds, i)
+			return c.JSON(http.StatusOK, cruds)
+		}
+	}
+	return c.JSON(http.StatusBadRequest, nil)
+}
+
+func remove(s []Crud, i int) []Crud {
+    s[i] = s[len(s)-1]
+    return s[:len(s)-1]
 }
