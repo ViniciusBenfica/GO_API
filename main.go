@@ -12,6 +12,8 @@ var cruds []Crud
 type Crud struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
+	Email string `json:"Email"`
+	Password string `json:"Password"`
 }
 
 func main() {
