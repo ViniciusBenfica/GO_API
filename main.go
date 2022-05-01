@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 	"strconv"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 var cruds []Crud
@@ -18,6 +18,7 @@ type Crud struct {
 
 func main() {
 	e := echo.New()
+	e.Use(middleware.CORS())
 	e.GET("/crud", listUser)
 	e.POST("/crud", createUser)
 	e.GET("/crud/:id", getUser)
