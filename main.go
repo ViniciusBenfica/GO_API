@@ -22,6 +22,7 @@ func main() {
 	e.GET("/crud", listUser)
 	e.POST("/crud", createUser)
 	e.GET("/crud/:id", getUser)
+	e.POST("/crud/login", crudLogin)
 	e.PUT("/crud/:id", putUser)
 	e.DELETE("/crud/:id", deleteUser)
 	e.Logger.Fatal(e.Start(":8081"))
@@ -83,4 +84,22 @@ func deleteUser(c echo.Context) error {
 func remove(s []Crud, i int) []Crud {
     s[i] = s[len(s)-1]
     return s[:len(s)-1]
+}
+
+func crudLogin(c echo.Context) error {
+	crud := Crud{}
+	err := c.Bind(&crud)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity)
+	}
+
+	for _, crudData := range cruds {
+		if crudData.Name == crud.Name {
+			if crudData.Password == crud.Password {
+				return c.JSON(http.StatusOK, true)
+			}
+		}
+	}
+
+	return c.JSON(http.StatusOK, false)
 }
