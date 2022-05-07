@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  golang:
+    container_name: golang
+    build:
+      context: .
+      target: development
+    command: go run main.go
+    ports:
+    - 8081:8081
