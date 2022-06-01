@@ -1,18 +1,18 @@
 package main
 
 import (
-	"net/http"
-	"strconv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"net/http"
+	"strconv"
 )
 
 var cruds []Crud
 
 type Crud struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Email string `json:"Email"`
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"Email"`
 	Password string `json:"Password"`
 }
 
@@ -82,8 +82,8 @@ func deleteUser(c echo.Context) error {
 }
 
 func remove(s []Crud, i int) []Crud {
-    s[i] = s[len(s)-1]
-    return s[:len(s)-1]
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
 }
 
 func crudLogin(c echo.Context) error {
